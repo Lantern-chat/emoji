@@ -31,6 +31,8 @@ for(let e of EMOJIS) {
 fs.ensureDirSync("./dist/individual");
 fs.copySync("./twemoji/assets/svg", "./dist/individual");
 
+console.log("Copied original files");
+
 function optimize_and_write(path, svg) {
     svg = svg
         .replace(/path\s+id=".*?"/g, 'path') // remove all path ids
@@ -63,7 +65,7 @@ let categories = {};
 let output_categories = {};
 
 let skin_tones = [
-    '',
+    '', // place first for quick fallback
     "🏻",
     "🏼",
     "🏽",
@@ -79,24 +81,37 @@ function get_twemoji(e) {
 
     let st = e.skin_tones ? skin_tones : [''];
 
+    let pending = {};
+
     for(let tone of st) {
         let emoji = tone ? e.emoji + tone : e.emoji;
 
-        let name = t.normalize(emoji);
+        let filename = t.normalize(emoji);
 
         try {
-            let svg = fs.readFileSync(path.join('./twemoji/assets/svg/', (e.hotfix || name) + '.svg')).toString();
+            let svg = fs.readFileSync(path.join('./twemoji/assets/svg/', (e.hotfix || filename) + '.svg')).toString();
 
             try {
-                optimize_and_write(`./dist/individual/${name}.svg`, svg);
+                optimize_and_write(`./dist/individual/${filename}.svg`, svg);
             } catch(e) {
                 console.error(e);
             }
 
-            output_categories[e.category].add(emoji, svg);
-        } catch(e) {
-
+            pending[emoji] = svg;
+        } catch(err) {
+            // if any error was thrown, it's likely because of it not finding a skin tone variant for this emoji
+            // so disable those and fallback to the original
+            e.skin_tones = false;
+            pending = {
+                // pick out the original without any modifiers
+                [e.emoji]: pending[e.emoji],
+            };
+            break;
         }
+    }
+
+    for(let emoji in pending) {
+        output_categories[e.category].add(emoji, pending[emoji]);
     }
 }
 
@@ -114,6 +129,8 @@ if(true) for(let category in categories) {
     for(let emote of categories[category]) {
         get_twemoji(emote);
     }
+
+    console.log("Saving category:", category);
 
     optimize_and_write(`./dist/${category}.svg`, output_categories[category].toString());
 }
