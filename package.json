@@ -1,0 +1,16 @@
+{
+  "name": "lantern-emoji",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "fs-extra": "^10.1.0",
+    "svgo": "^2.8.0",
+    "svgstore": "^3.0.1",
+    "typescript": "^4.5.5"
+  },
+  "scripts": {
+    "build": "node ./gen.js"
+  }
+}
