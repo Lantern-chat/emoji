@@ -147,7 +147,7 @@ for(let e of EMOJIS) {
         c *= -1;
     }
 
-    compressed_emojis.push([e.emoji, c, ...a].join(','));
+    compressed_emojis.push([e.emoji, c, ...a.sort((a, b) => b.length - a.length)].join(','));
 }
 
 // NOTE: Flattens any inner arrays as if
