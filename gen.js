@@ -138,16 +138,26 @@ if(true) for(let category in categories) {
 let compressed_emojis = [];
 let compressed_categories = Object.keys(categories);
 
+const CENSORED = ['shit', 'hankey'];
+
 for(let e of EMOJIS) {
     let a = e.aliases || [];
-    let c = compressed_categories.indexOf(e.category);
+    let c = compressed_categories.indexOf(e.category) + 1; // add one to allow for category 0 * -1 skin tone flag
+    let t = e.tags || [];
 
     // TODO: Come up with a better way to handle these
     if(e.skin_tones) {
         c *= -1;
     }
 
-    compressed_emojis.push([e.emoji, c, ...a.sort((a, b) => b.length - a.length)].join(','));
+    let aliases = a.filter(a => !CENSORED.includes(a)).sort((a, b) => b.length - a.length).join(' ');
+
+    let emoji = [e.emoji, c, aliases];
+    if(t.length > 0) {
+        emoji.push(t.join(' '));
+    }
+
+    compressed_emojis.push(emoji.join(','));
 }
 
 // NOTE: Flattens any inner arrays as if
