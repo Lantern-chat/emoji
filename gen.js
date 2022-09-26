@@ -17,7 +17,18 @@ const fs = require("fs-extra"),
 
 // https://github.com/kardeslik/gemoji/blob/import-emoji-14/db/emoji.json
 // or the main branch whenever that gets merged
-const EMOJIS = require('./emoji.json');
+const EMOJIS = require('./emoji.json')
+    .concat(require('./supp.json'));
+
+// A-Z regional indicators
+for(let i = 0; i < 26; i++) {
+    let emoji = String.fromCodePoint(0xD83C, 0xDDE6 + i);
+    EMOJIS.push({
+        emoji, category: "Symbols", aliases: [
+            `regional-indicator-${String.fromCharCode(97 + i)}`
+        ]
+    });
+}
 
 // https://github.com/twitter/twemoji/issues/405
 EMOJIS.find(e => e.emoji == '👁️‍🗨️').hotfix = '1f441-200d-1f5e8';
@@ -74,10 +85,10 @@ let skin_tones = [
 ];
 
 function get_twemoji(e) {
-    if(!t.EMOJI_RE.test(e.emoji)) {
-        console.warn("Not accepted:", e.emoji);
-        return;
-    }
+    // if(!t.EMOJI_RE.test(e.emoji)) {
+    //     console.warn("Not accepted:", e.emoji);
+    //     return;
+    // }
 
     let st = e.skin_tones ? skin_tones : [''];
 
