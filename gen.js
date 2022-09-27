@@ -25,7 +25,8 @@ for(let i = 0; i < 26; i++) {
     let emoji = String.fromCodePoint(0xD83C, 0xDDE6 + i);
     EMOJIS.push({
         emoji, category: "Symbols", aliases: [
-            `regional-indicator-${String.fromCharCode(97 + i)}`
+            String.fromCharCode(97 + i),
+            `regional_indicator_${String.fromCharCode(97 + i)}`
         ]
     });
 }
